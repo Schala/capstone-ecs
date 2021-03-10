@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -62,5 +63,15 @@ public class GameManager : MonoBehaviour
 	private void Start()
 	{
 		SpawnPlayer();
+	}
+
+	/// <summary>
+	/// Debug.Log() wrapper to use in our systems code
+	/// </summary>
+	/// <param name="message">Value to log to console</param>
+	[BurstDiscard]
+	public static void Log(string format, params object[] objs)
+	{
+		Debug.Log(string.Format(format, objs));
 	}
 }

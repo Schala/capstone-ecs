@@ -1,29 +1,7 @@
-using System;
+using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
-/// <summary>
-/// Various combinable input states (ie. firing, jumping)
-/// </summary>
-[Flags]
-public enum PlayerInputFlags : byte
-{
-	None = 0,
-	Fire = 1,
-	Jump = 2
-}
-
-/// <summary>
-/// Holds data from the player's input
-/// </summary>
-[Serializable]
-public struct PlayerInput : IComponentData
-{
-	public float2 movement;
-	public PlayerInputFlags flags;
-}
 
 /// <summary>
 /// Handles player input
@@ -34,10 +12,11 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 {
 	InputActions inputActions;
 	Vector2 movement;
-	EntityQuery playerInputQuery;
 	bool fired = false;
 	bool jumped = false;
+	bool canDoubleJump = false;
 	bool doubleJumped = false;
+	bool grounded = false;
 
 	/// <summary>
 	/// Signal when the player has pressed the fire button.
@@ -51,9 +30,20 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 	/// <param name="context">Context to retrieve when the player has jumped</param>
 	public void OnJump(InputAction.CallbackContext context)
 	{
-		if (jumped && !doubleJumped)
-			doubleJumped = true;
-		jumped = true;
+		if (context.started)
+		{
+			if (canDoubleJump)
+			{
+				doubleJumped = true;
+				canDoubleJump = false;
+			}
+			if (grounded)
+			{
+				jumped = true;
+				canDoubleJump = true;
+			}
+		}
+		if (context.canceled) jumped = false;
 	}
 
 	/// <summary>
@@ -69,8 +59,6 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 	{
 		inputActions = new InputActions();
 		inputActions.Player.SetCallbacks(this);
-
-		playerInputQuery = GetEntityQuery(typeof(PlayerInput));
 	}
 
 	/// <summary>
@@ -88,17 +76,23 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 	/// </summary>
 	protected override void OnUpdate()
 	{
-		if (playerInputQuery.CalculateEntityCount() == 0)
-			EntityManager.CreateEntity(typeof(PlayerInput));
+		var movement = this.movement;
+		var fired = this.fired;
+		var jumped = this.jumped;
+		var doubleJumped = this.doubleJumped;
+		var grounded = this.grounded;
 
-		var flags = PlayerInputFlags.None;
-		if (fired) flags |= PlayerInputFlags.Fire;
-		if (jumped) flags |= PlayerInputFlags.Jump;
-
-		playerInputQuery.SetSingleton(new PlayerInput
+		Entities.WithAll<PlayerTag>().ForEach((ref PlayerInput input, ref Movement mvmt) =>
 		{
-			movement = movement,
-			flags = flags
-		});
+			input.movement = -movement.x; // Negate the X-axis, otherwise our controls are inverted.
+			if ((mvmt.flags & Movement.Grounded) != 0) grounded = true;
+			if (fired) input.flags |= PlayerInput.Fire;
+			if (jumped) input.flags |= PlayerInput.Jump;
+			if (doubleJumped) input.flags |= PlayerInput.DoubleJump;
+		}).Run();
+
+		this.grounded = grounded;
+		this.fired = false;
+		this.jumped = false;
 	}
 }

@@ -6,18 +6,22 @@ using UnityEngine;
 /// </summary>
 public class MovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-	[SerializeField] float moveSpeed = 2.5f;
+	[SerializeField] float moveSpeed = 20f;
+	[SerializeField] float jumpForce = 1f;
+	[SerializeField] float jumpTimeMax = 0.08f;
 
 	/// <summary>
 	/// Convert the data entered via Unity's inspector into a DOTS component instance.
 	/// </summary>
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
-		//if (!enabled) return;
-
 		var movement = new Movement
 		{
-			moveSpeed = moveSpeed
+			moveSpeed = moveSpeed,
+			jumpForce = jumpForce,
+			jumpTimeMax = jumpTimeMax,
+			jumpDelta = 0f,
+			flags = Movement.Grounded
 		};
 
 		dstManager.AddComponentData(entity, movement);

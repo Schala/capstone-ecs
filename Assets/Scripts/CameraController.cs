@@ -1,16 +1,18 @@
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
     public static CameraController Instance { get; private set; } = null;
-	[SerializeField] float3 offset = float3.zero;
+
+	[SerializeField] float offset = -10f;
+	[SerializeField] float followSpeed = 0.15f;
 
     public Entity target = Entity.Null;
 
 	EntityManager entityManager;
+	Vector3 velocity = Vector3.zero;
 
 	/// <summary>
 	/// Set up our singleton instance and variables
@@ -32,8 +34,7 @@ public class CameraController : MonoBehaviour
 		if (target == Entity.Null) return;
 
 		var trans = entityManager.GetComponentData<Translation>(target);
-		var direction = (Vector3)trans.Value - transform.position;
-		transform.position = trans.Value + offset;
-		transform.rotation = Quaternion.LookRotation(direction, transform.up);
+		trans.Value.x += offset;
+		transform.position = Vector3.SmoothDamp(transform.position, trans.Value, ref velocity, Time.deltaTime * followSpeed);
     }
 }
