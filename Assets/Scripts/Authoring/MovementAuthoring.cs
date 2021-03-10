@@ -8,6 +8,7 @@ public class MovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
 	[SerializeField] float moveSpeed = 20f;
 	[SerializeField] float jumpForce = 1f;
+	[SerializeField] float doubleJumpForceMultiplier = 2f;
 	[SerializeField] float jumpTimeMax = 0.08f;
 
 	/// <summary>
@@ -19,9 +20,11 @@ public class MovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 		{
 			moveSpeed = moveSpeed,
 			jumpForce = jumpForce,
+			doubleJumpForceMultiplier = doubleJumpForceMultiplier,
 			jumpTimeMax = jumpTimeMax,
 			jumpDelta = 0f,
-			flags = Movement.Grounded
+			//flags = Movement.Grounded
+			grounded = false
 		};
 
 		dstManager.AddComponentData(entity, movement);

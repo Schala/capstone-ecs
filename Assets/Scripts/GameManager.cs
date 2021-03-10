@@ -33,11 +33,13 @@ public class GameManager : MonoBehaviour
 		entityManager = world.EntityManager;
 		blobAssetStore = new BlobAssetStore();
 		var settings = GameObjectConversionSettings.FromWorld(world, blobAssetStore);
+
 		playerEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(playerPrefab, settings);
+		entityManager.SetName(playerEntityPrefab, "Player prefab");
 	}
 
 	/// <summary>
-	/// Clean up anything in memory
+	/// Clean up anything in memory.
 	/// </summary>
 	private void OnDestroy() => blobAssetStore.Dispose();
 
@@ -47,31 +49,17 @@ public class GameManager : MonoBehaviour
 	void SpawnPlayer()
 	{
 		var playerEntity = entityManager.Instantiate(playerEntityPrefab);
-
+		entityManager.SetName(playerEntity, "Player");
 		entityManager.AddComponent(playerEntity, typeof(PlayerInput));
-		entityManager.AddComponentData(playerEntity, new Translation
-		{
-			Value = new float3(0f, 2.25f, -0.25f)
-		});
 
 		CameraController.Instance.target = playerEntity;
 	}
 
 	/// <summary>
-	/// Spawn the player at game start
+	/// Spawn the player at game start.
 	/// </summary>
 	private void Start()
 	{
 		SpawnPlayer();
-	}
-
-	/// <summary>
-	/// Debug.Log() wrapper to use in our systems code
-	/// </summary>
-	/// <param name="message">Value to log to console</param>
-	[BurstDiscard]
-	public static void Log(string format, params object[] objs)
-	{
-		Debug.Log(string.Format(format, objs));
 	}
 }

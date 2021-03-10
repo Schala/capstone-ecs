@@ -6,7 +6,7 @@ using Unity.Physics.Extensions;
 /// <summary>
 /// Movement logic for player
 /// </summary>
-[AlwaysSynchronizeSystem]
+[UpdateAfter(typeof(PlayerInputSystem))]
 public class PlayerMovementSystem : SystemBase
 {
 	/// <summary>
@@ -18,23 +18,24 @@ public class PlayerMovementSystem : SystemBase
 
 		Entities.WithAll<PlayerTag>().ForEach((ref PhysicsVelocity velocity, ref Movement movement, ref PhysicsMass mass, ref PlayerInput input) =>
 		{
-			if ((movement.flags & Movement.Grounded) != 0 && movement.jumpDelta < movement.jumpTimeMax)
-				if ((input.flags & PlayerInput.Jump) != 0)
+			if (movement.grounded && movement.jumpDelta < movement.jumpTimeMax)
+				if (input.jump)
 				{
 					PhysicsComponentExtensions.ApplyLinearImpulse(ref velocity, in mass, new float3(0f, 1f, 0f) * movement.jumpForce);
-					movement.flags ^= Movement.Grounded;
+					movement.grounded = false;
 				}
 
-			if ((input.flags & PlayerInput.DoubleJump) != 0)
+			if (input.doubleJump)
 			{
 				velocity.Linear = float3.zero; // Zero out any velocity to counter gravity.
-				PhysicsComponentExtensions.ApplyLinearImpulse(ref velocity, in mass, new float3(0f, 1f, 0f) * movement.jumpForce);
+				PhysicsComponentExtensions.ApplyLinearImpulse(ref velocity, in mass, new float3(0f, 1f, 0f) * movement.jumpForce * movement.doubleJumpForceMultiplier);
 			}
 
 			PhysicsComponentExtensions.ApplyLinearImpulse(ref velocity, in mass, new float3(0f, 0f, input.movement * movement.moveSpeed * deltaTime));
 			mass.InverseInertia = float3.zero; // freeze rotation workaround
 
-			movement.jumpDelta += deltaTime;
+			if (!movement.grounded)
+				movement.jumpDelta += deltaTime;
 		}).Run();
 	}
 }

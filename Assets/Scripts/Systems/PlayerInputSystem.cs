@@ -1,4 +1,4 @@
-using Unity.Collections;
+
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,7 +7,6 @@ using UnityEngine.InputSystem;
 /// Handles player input
 /// </summary>
 [AlwaysUpdateSystem]
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 {
 	InputActions inputActions;
@@ -25,7 +24,7 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 	public void OnFire(InputAction.CallbackContext context) => fired = context.ReadValueAsButton();
 
 	/// <summary>
-	/// Signal when the player has pressed the jump button, or double jumped
+	/// Signal when the player has pressed the jump button, or double jumped.
 	/// </summary>
 	/// <param name="context">Context to retrieve when the player has jumped</param>
 	public void OnJump(InputAction.CallbackContext context)
@@ -43,11 +42,12 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 				canDoubleJump = true;
 			}
 		}
+
 		if (context.canceled) jumped = false;
 	}
 
 	/// <summary>
-	/// Get player movement values upon input
+	/// Get player movement values upon input.
 	/// </summary>
 	/// <param name="context">Context to fetch the values from</param>
 	public void OnMove(InputAction.CallbackContext context) => movement = context.ReadValue<Vector2>();
@@ -62,17 +62,17 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 	}
 
 	/// <summary>
-	/// Enable player input on game start
+	/// Enable player input on game start.
 	/// </summary>
 	protected override void OnStartRunning() => inputActions.Enable();
 
 	/// <summary>
-	/// Disable player input on game stop
+	/// Disable player input on game stop.
 	/// </summary>
 	protected override void OnStopRunning() => inputActions.Disable();
 
 	/// <summary>
-	/// Process given inputs into our input component data every frame
+	/// Process given inputs into our input component data every frame.
 	/// </summary>
 	protected override void OnUpdate()
 	{
@@ -82,17 +82,17 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 		var doubleJumped = this.doubleJumped;
 		var grounded = this.grounded;
 
-		Entities.WithAll<PlayerTag>().ForEach((ref PlayerInput input, ref Movement mvmt) =>
+		Entities.WithAll<PlayerTag>().ForEach((ref PlayerInput input, in Movement mvmt) =>
 		{
 			input.movement = -movement.x; // Negate the X-axis, otherwise our controls are inverted.
-			if ((mvmt.flags & Movement.Grounded) != 0) grounded = true;
-			if (fired) input.flags |= PlayerInput.Fire;
-			if (jumped) input.flags |= PlayerInput.Jump;
-			if (doubleJumped) input.flags |= PlayerInput.DoubleJump;
+
+			grounded = mvmt.grounded;
+			input.jump = jumped;
+			input.doubleJump = doubleJumped;
 		}).Run();
 
 		this.grounded = grounded;
 		this.fired = false;
-		this.jumped = false;
+		if (doubleJumped) this.doubleJumped = false;
 	}
 }

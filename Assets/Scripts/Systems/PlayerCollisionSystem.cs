@@ -47,11 +47,11 @@ public class PlayerCollisionSystem : JobComponentSystem
 			var movement = movementGroup[player];
 			var input = inputGroup[player];
 
-			if ((input.flags & PlayerInput.Jump) != 0) input.flags ^= PlayerInput.Jump;
-			if ((input.flags & PlayerInput.DoubleJump) != 0) input.flags ^= PlayerInput.DoubleJump;
+			if (input.jump) input.jump = false;
+			if (input.doubleJump) input.doubleJump = false;
 
 			movement.jumpDelta = 0f;
-			movement.flags |= Movement.Grounded;
+			movement.grounded = true;
 
 			movementGroup[player] = movement;
 			inputGroup[player] = input;
