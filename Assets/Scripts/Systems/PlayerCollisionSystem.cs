@@ -8,6 +8,7 @@ using Unity.Physics.Systems;
 /// Collision logic for player
 /// </summary>
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[UpdateAfter(typeof(ItemCollisionSystem))]
 public class PlayerCollisionSystem : JobComponentSystem
 {
     BuildPhysicsWorld buildPhysicsWorld;
@@ -80,9 +81,10 @@ public class PlayerCollisionSystem : JobComponentSystem
 			inputGroup = GetComponentDataFromEntity<PlayerInput>(),
 			playerGroup = GetComponentDataFromEntity<PlayerTag>(true),
 			platformGroup = GetComponentDataFromEntity<PlatformTag>(true)
-		}.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, inputDeps);
+		};
 
-		job.Complete();
-		return job;
+		inputDeps = JobHandle.CombineDependencies(inputDeps, stepPhysicsWorld.FinalSimulationJobHandle);
+
+		return job.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, inputDeps);
 	}
 }

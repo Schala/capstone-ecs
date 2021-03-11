@@ -23,7 +23,6 @@ public class MovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			doubleJumpForceMultiplier = doubleJumpForceMultiplier,
 			jumpTimeMax = jumpTimeMax,
 			jumpDelta = 0f,
-			//flags = Movement.Grounded
 			grounded = false
 		};
 
