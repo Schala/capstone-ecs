@@ -6,7 +6,6 @@ using Unity.Jobs;
 /// Disposes of entities marked for deletion
 /// </summary>
 [AlwaysSynchronizeSystem]
-[UpdateAfter(typeof(ItemCollisionSystem))]
 public class DeletionSystem : SystemBase
 {
     protected override void OnUpdate()

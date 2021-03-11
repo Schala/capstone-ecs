@@ -9,7 +9,7 @@ using Unity.Physics.Systems;
 /// </summary>
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(ItemCollisionSystem))]
-public class PlayerCollisionSystem : JobComponentSystem
+public class PlayerCollisionSystem : SystemBase
 {
     BuildPhysicsWorld buildPhysicsWorld;
     StepPhysicsWorld stepPhysicsWorld;
@@ -71,10 +71,8 @@ public class PlayerCollisionSystem : JobComponentSystem
 	/// <summary>
 	/// Iterate through our collision events.
 	/// </summary>
-	/// <param name="inputDeps"></param>
-	/// <returns></returns>
-	protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
+	protected override void OnUpdate()
+	{
 		var job = new PlayerCollisionEventsJob
 		{
 			movementGroup = GetComponentDataFromEntity<Movement>(),
@@ -83,8 +81,7 @@ public class PlayerCollisionSystem : JobComponentSystem
 			platformGroup = GetComponentDataFromEntity<PlatformTag>(true)
 		};
 
-		inputDeps = JobHandle.CombineDependencies(inputDeps, stepPhysicsWorld.FinalSimulationJobHandle);
-
-		return job.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, inputDeps);
+		var handle = job.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, Dependency);
+		handle.Complete();
 	}
 }

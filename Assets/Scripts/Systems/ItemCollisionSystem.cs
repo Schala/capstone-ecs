@@ -8,8 +8,7 @@ using Unity.Physics.Systems;
 /// Handle item collision logic.
 /// </summary>
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-[UpdateBefore(typeof(PlayerCollisionSystem))]
-public class ItemCollisionSystem : JobComponentSystem
+public class ItemCollisionSystem : SystemBase
 {
 	BuildPhysicsWorld buildPhysicsWorld;
 	StepPhysicsWorld stepPhysicsWorld;
@@ -63,7 +62,7 @@ public class ItemCollisionSystem : JobComponentSystem
 		bufferSystem = World.GetOrCreateSystem<BeginFixedStepSimulationEntityCommandBufferSystem>();
 	}
 
-	protected override JobHandle OnUpdate(JobHandle inputDeps)
+	protected override void OnUpdate()
 	{
 		var job = new ItemCollisionEventJob
 		{
@@ -73,6 +72,7 @@ public class ItemCollisionSystem : JobComponentSystem
 			buffer = bufferSystem.CreateCommandBuffer()
 		};
 
-		return job.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, inputDeps);
+		var handle = job.Schedule(stepPhysicsWorld.Simulation, ref buildPhysicsWorld.PhysicsWorld, Dependency);
+		handle.Complete();
 	}
 }
