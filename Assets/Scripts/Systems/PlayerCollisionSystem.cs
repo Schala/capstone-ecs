@@ -19,11 +19,15 @@ public class PlayerCollisionSystem : SystemBase
 	/// </summary>
 	struct PlayerCollisionEventsJob : ICollisionEventsJob
 	{
-		public ComponentDataFromEntity<Movement> movementGroup;
+		public ComponentDataFromEntity<PlayerMovement> movementGroup;
 		public ComponentDataFromEntity<PlayerInput> inputGroup;
 		[ReadOnly] public ComponentDataFromEntity<PlayerTag> playerGroup;
 		[ReadOnly] public ComponentDataFromEntity<PlatformTag> platformGroup;
 
+		/// <summary>
+		/// Determine the entities involved in the collision event, and then perform the player landing logic.
+		/// </summary>
+		/// <param name="collisionEvent"></param>
 		public void Execute(CollisionEvent collisionEvent)
 		{
 			var a = collisionEvent.EntityA;
@@ -75,7 +79,7 @@ public class PlayerCollisionSystem : SystemBase
 	{
 		var job = new PlayerCollisionEventsJob
 		{
-			movementGroup = GetComponentDataFromEntity<Movement>(),
+			movementGroup = GetComponentDataFromEntity<PlayerMovement>(),
 			inputGroup = GetComponentDataFromEntity<PlayerInput>(),
 			playerGroup = GetComponentDataFromEntity<PlayerTag>(true),
 			platformGroup = GetComponentDataFromEntity<PlatformTag>(true)

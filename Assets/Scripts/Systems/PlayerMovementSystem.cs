@@ -16,7 +16,7 @@ public class PlayerMovementSystem : SystemBase
 	{
 		var deltaTime = Time.DeltaTime;
 
-		Entities.WithAll<PlayerTag>().ForEach((ref PhysicsVelocity velocity, ref Movement movement, ref PhysicsMass mass, ref PlayerInput input) =>
+		Entities.WithAll<PlayerTag>().ForEach((ref PhysicsVelocity velocity, ref PlayerMovement movement, ref PhysicsMass mass, ref PlayerInput input) =>
 		{
 			if (movement.grounded && movement.jumpDelta < movement.jumpTimeMax)
 				if (input.jump)

@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Set movement and physics from the Unity inspector
 /// </summary>
-public class MovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+public class PlayerMovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
 	[SerializeField] float moveSpeed = 20f;
 	[SerializeField] float jumpForce = 1f;
@@ -16,7 +16,7 @@ public class MovementAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 	/// </summary>
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
-		var movement = new Movement
+		var movement = new PlayerMovement
 		{
 			moveSpeed = moveSpeed,
 			jumpForce = jumpForce,

@@ -15,15 +15,19 @@ public class ItemCollisionSystem : SystemBase
 	BeginFixedStepSimulationEntityCommandBufferSystem bufferSystem;
 
 	/// <summary>
-	/// Handle item collision events
+	/// Handle item trigger events.
 	/// </summary>
-	struct ItemCollisionEventJob : ITriggerEventsJob
+	struct ItemTriggerEventsJob : ITriggerEventsJob
 	{
 		[ReadOnly] public ComponentDataFromEntity<PlayerTag> playerGroup;
 		[ReadOnly] public ComponentDataFromEntity<ItemTag> itemGroup;
 		[ReadOnly] public ComponentDataFromEntity<DeleteTag> deletionGroup;
 		public EntityCommandBuffer buffer;
 
+		/// <summary>
+		/// Determine the entities involved in the trigger event, and then perform the item consume logic.
+		/// </summary>
+		/// <param name="triggerEvent"></param>
 		public void Execute(TriggerEvent triggerEvent)
 		{
 			var a = triggerEvent.EntityA;
@@ -64,7 +68,7 @@ public class ItemCollisionSystem : SystemBase
 
 	protected override void OnUpdate()
 	{
-		var job = new ItemCollisionEventJob
+		var job = new ItemTriggerEventsJob
 		{
 			playerGroup = GetComponentDataFromEntity<PlayerTag>(true),
 			itemGroup = GetComponentDataFromEntity<ItemTag>(true),

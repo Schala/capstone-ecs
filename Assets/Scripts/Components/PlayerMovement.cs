@@ -2,10 +2,10 @@ using System;
 using Unity.Entities;
 
 /// <summary>
-/// Movement and physics data for an entity
+/// Movement and physics data for the player
 /// </summary>
 [Serializable]
-public struct Movement : IComponentData
+public struct PlayerMovement : IComponentData
 {
 	public float moveSpeed;
 	public float jumpForce;

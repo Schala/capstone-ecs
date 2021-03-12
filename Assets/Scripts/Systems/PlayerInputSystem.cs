@@ -82,7 +82,7 @@ public class PlayerInputSystem : SystemBase, InputActions.IPlayerActions
 		var doubleJumped = this.doubleJumped;
 		var grounded = this.grounded;
 
-		Entities.WithAll<PlayerTag>().ForEach((ref PlayerInput input, in Movement mvmt) =>
+		Entities.WithAll<PlayerTag>().ForEach((ref PlayerInput input, in PlayerMovement mvmt) =>
 		{
 			input.movement = -movement.x; // Negate the X-axis, otherwise our controls are inverted.
 
